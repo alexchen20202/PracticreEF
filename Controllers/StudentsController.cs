@@ -32,7 +32,6 @@ namespace EfGetStart2.Controllers
             {
                 return NotFound();
             }
-
             var student = await _context.Students
                 .FirstOrDefaultAsync(m => m.StudentId == id);
             if (student == null)
