@@ -20,14 +20,23 @@ namespace EfGetStart2.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index(string sortString = "")
+        public async Task<IActionResult> Index(string sortString = "", string searchString = "")
         {
+            ViewBag.SearchString = searchString;
             ViewBag.SortString = sortString;
             ViewBag.SortFirstName = (sortString == "firstName_desc") ? "firstName" : "firstName_desc";        
             ViewBag.SortLastName = (sortString == "lastName_desc") ? "lastname" : "lastName_desc";
             ViewBag.SortEnrollDate = (sortString == "enrollDate_desc") ? "enrollDate" : "enrollDate_desc";
-
+            
             IQueryable<Student> students =  _context.Students.Take(10).AsQueryable();
+
+            if(!String.IsNullOrEmpty(searchString))
+            {
+                students = students.Where(
+                    s => s.FirstName.Contains(searchString)
+                    || s.LastName.Contains(searchString)
+                );
+            }
 
             switch(sortString)
             {
