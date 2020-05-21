@@ -20,9 +20,41 @@ namespace EfGetStart2.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortString = "")
         {
-            return View(await _context.Students.ToListAsync());
+            ViewBag.SortString = sortString;
+            ViewBag.SortFirstName = (sortString == "firstName_desc") ? "firstName" : "firstName_desc";        
+            ViewBag.SortLastName = (sortString == "lastName_desc") ? "lastname" : "lastName_desc";
+            ViewBag.SortEnrollDate = (sortString == "enrollDate_desc") ? "enrollDate" : "enrollDate_desc";
+
+            IQueryable<Student> students =  _context.Students.Take(10).AsQueryable();
+
+            switch(sortString)
+            {
+                case "firstName_desc":
+                students = students.OrderByDescending(s => s.FirstName);
+                break;
+                case "firstName":
+                students = students.OrderBy(s => s.FirstName);
+                break;
+                case "lastName_desc":
+                students = students.OrderByDescending(s => s.LastName);
+                break;
+                case "lastName":
+                students = students.OrderBy(s => s.LastName);
+                break;
+                case "enrollDate_desc":
+                students = students.OrderByDescending(s => s.EnrollmentDate);
+                break;
+                case "enrollDate":
+                students = students.OrderBy(s => s.EnrollmentDate);
+                break;
+                default :
+                students = students.OrderBy(s => s.FirstName);
+                break;
+            }
+            
+            return View(await students.ToListAsync());
         }
 
         // GET: Students/Details/5
