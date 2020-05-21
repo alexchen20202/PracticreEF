@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EfGetStart2.DAL;
 using EfGetStart2.Models;
+using EfGetStart2.Services;
 
 namespace EfGetStart2.Controllers
 {
@@ -20,18 +21,20 @@ namespace EfGetStart2.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index(string sortString = "", string searchString = "")
+        public async Task<IActionResult> Index(string sortString = "", string searchString = "", int page = 1)
         {
+            
             ViewBag.SearchString = searchString;
             ViewBag.SortString = sortString;
             ViewBag.SortFirstName = (sortString == "firstName_desc") ? "firstName" : "firstName_desc";        
             ViewBag.SortLastName = (sortString == "lastName_desc") ? "lastname" : "lastName_desc";
             ViewBag.SortEnrollDate = (sortString == "enrollDate_desc") ? "enrollDate" : "enrollDate_desc";
             
-            IQueryable<Student> students =  _context.Students.Take(10).AsQueryable();
+            IQueryable<Student> students =  _context.Students.AsQueryable();
 
             if(!String.IsNullOrEmpty(searchString))
             {
+                page = 1;
                 students = students.Where(
                     s => s.FirstName.Contains(searchString)
                     || s.LastName.Contains(searchString)
@@ -63,7 +66,16 @@ namespace EfGetStart2.Controllers
                 break;
             }
             
-            return View(await students.ToListAsync());
+            int pageSize = 5;
+            PagedList<Student> pageList = new PagedList<Student>();
+            students = await pageList.Paging(students, page, pageSize);
+
+            ViewBag.HasNextPage = pageList.HasNextPage;
+            ViewBag.HasPrevPage = pageList.HasPrevPage;
+            ViewBag.TotalPages = pageList.TotalPages;
+            ViewBag.PageIndex = pageList.PageIndex;
+            
+            return View(students);
         }
 
         // GET: Students/Details/5

@@ -4,6 +4,13 @@
     ViewData["Title"] = "Index";
 }
 
+@{
+    var nextPage = (ViewBag.HasNextPage) ? (ViewBag.PageIndex + 1) : ViewBag.PageIndex;
+    var prevPage = (ViewBag.HasPrevPage) ? (ViewBag.PageIndex - 1) : ViewBag.PageIndex;
+    var nextDisable = (ViewBag.HasNextPage) ? "" : "disabled";
+    var prevDisable = (ViewBag.HasPrevPage) ? "" : "disabled";
+}
+
 <form asp-action="Index" method="get" class="form">
     <div class = "form-row">
       <div class="form-group col-md-3">
@@ -19,7 +26,8 @@
 </form>
 
 <p>
-    <a asp-action="Create">New Student</a>
+    <a asp-action="Create">New Student </a> |
+    Page @ViewBag.PageIndex of @ViewBag.TotalPages 
 </p>
 
 <table class="table">
@@ -66,3 +74,25 @@
 }
     </tbody>
 </table>
+
+<p>
+<a asp-action = "Index" 
+    asp-route-sortString = "@ViewBag.SortString"
+    asp-route-searchString = "@ViewBag.SearchString"
+    asp-route-page="@prevPage"
+    class = "btn btn-secondary btn-sm @prevDisable"
+    >
+<< Prev |    
+</a>
+
+<a asp-action = "Index" 
+    asp-route-sortString = "@ViewBag.SortString"
+    asp-route-searchString = "@ViewBag.SearchString"
+    asp-route-page="@nextPage"
+    class = "btn btn-secondary btn-sm @nextDisable"
+    >
+| Next >>    
+</a>
+
+</p>
+
