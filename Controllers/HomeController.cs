@@ -14,7 +14,7 @@ namespace EfGetStart2.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        // private readonly ILogger<HomeController> _logger;
         private readonly SchoolContext _context;
 
         // public HomeController(ILogger<HomeController> logger)
@@ -27,22 +27,25 @@ namespace EfGetStart2.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> About()
-        {  
-            IQueryable<IGrouping<DateTime, Student>> groupList = 
-            _context.Students.GroupBy(s => s.EnrollmentDate);
-            
-            List<EnrollmentDateGroup> eGroupList = new List<EnrollmentDateGroup>();
-            
-            foreach(IGrouping<DateTime, Student> group in groupList)
-            {
-                EnrollmentDateGroup eGroup = new EnrollmentDateGroup();
-                eGroup.EnrollmentDate = group.Key;
-                eGroup.StudentCount = group.Count();
-                eGroupList.Add(eGroup);
-            } 
-            
-            return View(eGroupList);
+        public async Task<ActionResult> About()
+        {
+            IQueryable<EnrollmentDateGroup> data = 
+                from student in _context.Students
+                group student by student.EnrollmentDate into dateGroup
+                select new EnrollmentDateGroup()
+                {
+                    EnrollmentDate = dateGroup.Key,
+                    StudentCount = dateGroup.Count()
+                };
+            return View(await data.AsNoTracking().ToListAsync());
+
+            // var studentGroup = _context.Students.GroupBy(s => s.EnrollmentDate).ToList();
+            // var key = studentGroup.FirstOrDefault().Key;
+            // var count = studentGroup.FirstOrDefault().Count();
+            // EnrollmentDateGroup myGroup = new EnrollmentDateGroup();
+            // myGroup.EnrollmentDate = key;
+            // myGroup.StudentCount = count;
+            // return View(myGroup);       
         }
 
         public IActionResult Index()
